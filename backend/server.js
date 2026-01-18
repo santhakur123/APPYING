@@ -1,25 +1,32 @@
-require("dotenv").config();
+require('dotenv').config();
 
-const express =require("express");
-const app= express();
-const cors=require("cors");
-const authRoute=require("./routes/Authroutes");
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
 
-const mongoose=require("mongoose");
+const app = express();
 
-app.use(cors());
+// Middleware
 app.use(express.json());
+app.use(cors());
 
-const PORT=process.env.PORT||5000;
- const dbURL=process.env.MONGO_URL;
-mongoose.connect(dbURL)
-  .then(() => console.log('Connected!'))
-  .catch(err=> console.log("mongo error",err));
+//Mongo
+mongoose.connect(process.env.MONGO_URI)
+.then(()=>console.log("Mongo Connected"))
+.catch(err=> console.log("Mongo error:", err ));
 
-app.get("/",(req,res)=>{
-    res.send("Server is Listening");
+
+// Routes
+app.use('/api/auth', require('./routes/auth'));
+app.use("/api/products", require("./routes/products"));
+app.use('/api/orders', require('./routes/orders'))
+
+//Test route
+app.get('/',(req, res)=>{
+    res.json({message:'Ecom API is runnung!'}); 
 })
-app.use("/api/auth",authRoute);
+
+const PORT = process.env.PORT||5000;
 app.listen(PORT,()=>{
-    console.log("Listening to the port", {PORT});
+    console.log(`Server is running on PORT ${PORT}`);
 })
